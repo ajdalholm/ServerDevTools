@@ -26,9 +26,10 @@ function Split-File ([string]$inFile, [int]$bufSize = 5mb) {
     }
     $stream.Close()
 }
-function Join-File ([string]$infilePrefix) {
+function Join-File ([string]$infilePrefix,[string]$outFilePath) {
     $fileinfo = [System.IO.FileInfo]$infilePrefix
-    $outFile = Join-Path $fileinfo.Directory $fileinfo.BaseName
+    #$outFile = Join-Path $fileinfo.Directory $fileinfo.BaseName
+    $outFile = Get-Item -Path $outFilePath
     $ostream = [System.Io.File]::OpenWrite($outFile)
     $chunkNum = 1
     $infileName = "$infilePrefix$chunkNum"
@@ -51,9 +52,10 @@ Add-AppxPackage -Path .\Microsoft.VCLibs.x64.14.00.Desktop.appx
 
 #Join file from parts
 $firstPartOfFile = Get-Item -path .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle.part1
-Join-File -infilePrefix $firstPartOfFile.FullName.Substring(0,$firstPartOfFile.FullName.Length-1)
+$tempFile = New-TemporaryFile
+Join-File -infilePrefix $firstPartOfFile.FullName.Substring(0,$firstPartOfFile.FullName.Length-1) -outFilePath $tempFile.FullName
 Start-Sleep -Seconds 3
-Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle -LicensePath 76fba573f02545629706ab99170237bc_License1.xml
+Add-AppxProvisionedPackage -Online -PackagePath $tempFile.FullName -LicensePath 76fba573f02545629706ab99170237bc_License1.xml
 Pop-Location
 
 Start-Sleep -Seconds 5
