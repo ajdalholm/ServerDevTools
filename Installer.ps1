@@ -65,3 +65,5 @@ winget install Git.Git 7zip.7zip Google.Chrome Microsoft.VisualStudioCode Micros
 #Refresh Path
 Invoke-Command -ScriptBlock {$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") }
 
+#clone this repository
+Invoke-Command -ScriptBlock {powershell.exe -Command "& {Push-Location $env:USERPROFILE ; & 'git.exe' clone https://github.com/ajdalholm/ServerDevTools.git; Pop-Location}"}
