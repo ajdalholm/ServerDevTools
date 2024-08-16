@@ -60,7 +60,7 @@ Pop-Location
 
 Start-Sleep -Seconds 5
 
-winget install Git.Git 7zip.7zip Google.Chrome Microsoft.VisualStudioCode Microsoft.PowerShell WinMerge.WinMerge Microsoft.WindowsTerminal --accept-source-agreements --accept-package-agreements
+winget install Git.Git 7zip.7zip Google.Chrome Microsoft.VisualStudioCode Microsoft.PowerShell WinMerge.WinMerge Microsoft.WindowsTerminal --accept-source-agreements --accept-package-agreements --scope machine
 
 #Refresh Path
 Invoke-Command -ScriptBlock {$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") }
