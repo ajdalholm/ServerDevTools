@@ -44,18 +44,40 @@ function Join-File ([string]$infilePrefix,[string]$outFilePath) {
 
     $ostream.close()
 }
-Push-Location -Path $PSScriptRoot -ErrorAction SilentlyContinue
-$Null = New-Item -ItemType Directory -Path (Join-Path -Path $env:UserProfile -ChildPath 'Documents\PowerShell\Modules') -Force -ErrorAction SilentlyContinue
 
+$Binaries = @(
+    'https://github.com/ajdalholm/ServerDevToolsBinaries/blob/9f0c1eff9635452930b7da4c1d7ca56ca8598021/76fba573f02545629706ab99170237bc_License1.xml?raw=true',
+    'https://github.com/ajdalholm/ServerDevToolsBinaries/blob/9f0c1eff9635452930b7da4c1d7ca56ca8598021/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle.part1?raw=true',
+    'https://github.com/ajdalholm/ServerDevToolsBinaries/blob/9f0c1eff9635452930b7da4c1d7ca56ca8598021/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle.part2?raw=true',
+    'https://github.com/ajdalholm/ServerDevToolsBinaries/blob/9f0c1eff9635452930b7da4c1d7ca56ca8598021/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle.part3?raw=true',
+    'https://github.com/ajdalholm/ServerDevToolsBinaries/blob/9f0c1eff9635452930b7da4c1d7ca56ca8598021/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle.part4?raw=true',
+    'https://github.com/ajdalholm/ServerDevToolsBinaries/blob/9f0c1eff9635452930b7da4c1d7ca56ca8598021/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle.part5?raw=true',
+    'https://github.com/ajdalholm/ServerDevToolsBinaries/blob/9f0c1eff9635452930b7da4c1d7ca56ca8598021/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle.part6?raw=true',
+    'https://github.com/ajdalholm/ServerDevToolsBinaries/blob/9f0c1eff9635452930b7da4c1d7ca56ca8598021/Microsoft.UI.Xaml.2.8.appx?raw=true',
+    'https://github.com/ajdalholm/ServerDevToolsBinaries/blob/9f0c1eff9635452930b7da4c1d7ca56ca8598021/Microsoft.VCLibs.x64.14.00.Desktop.appx?raw=true'
+)
+
+do {
+    $guid = [system.guid]::NewGuid().ToString()
+ } while (Test-Path -Path (Join-Path -Path $env:TEMP -ChildPath $guid) -PathType Container )
+$Tempfolder = New-Item -Path $env:TEMP -Name $guid -ItemType Directory
+
+$Binaries | ForEach-Object {
+    $url = $_
+    $filename = $url.Split('/')[-1].Split('?')[0]
+    $outFile = Join-Path -Path $Tempfolder.FullName -ChildPath $filename
+    Invoke-WebRequest -Uri $url -OutFile $outFile
+}
+
+Push-Location -Path $Tempfolder.FullName -ErrorAction SilentlyContinue
 Add-AppxPackage -Path .\Microsoft.UI.Xaml.2.8.appx
 Add-AppxPackage -Path .\Microsoft.VCLibs.x64.14.00.Desktop.appx
-
-#Join file from parts
+#Join winget package from parts
 $firstPartOfFile = Get-Item -path .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle.part1
-$tempFile = New-TemporaryFile
-Join-File -infilePrefix $firstPartOfFile.FullName.Substring(0,$firstPartOfFile.FullName.Length-1) -outFilePath $tempFile.FullName
+$tempFile = $firstPartOfFile.FullName.Split('.part')[0]
+Join-File -infilePrefix $firstPartOfFile.FullName.Substring(0,$firstPartOfFile.FullName.Length-1) -outFilePath $tempFile
 Start-Sleep -Seconds 3
-Add-AppxProvisionedPackage -Online -PackagePath $tempFile.FullName -LicensePath 76fba573f02545629706ab99170237bc_License1.xml
+Add-AppxProvisionedPackage -Online -PackagePath $tempFile -LicensePath .\76fba573f02545629706ab99170237bc_License1.xml
 Pop-Location
 
 Start-Sleep -Seconds 5
