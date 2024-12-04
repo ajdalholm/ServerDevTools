@@ -1,7 +1,7 @@
 ﻿$DSCModules = @('ActiveDirectoryDSC', 'ComputerManagementDSC', 'NetworkingDSC', 'DnsServerDSC','xRemoteDesktopAdmin','PSDesiredStateConfiguration')
 $DSCModules| ForEach-Object {
   if ( -not (Get-Module -ListAvailable -Name $_) ) {
-    Install-Module -Name $_ -Scope CurrentUser
+    Install-Module -Name $_ -Scope AllUsers
   }
 }
 

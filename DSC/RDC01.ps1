@@ -1,12 +1,4 @@
-﻿<# Notes:
-
-    Goal - Create a domain controller and populate with OUs, Groups, and Users.
-    This script must be run after prepDomainController.
-
-    Disclaimer - This example code is provided without copyright and AS IS.  It is free for you to use and modify.
-
-#>
-
+﻿Push-Location -Path $PSScriptRoot
 $domainDNSNamespace = 'firefly.local'
 $DomainDN = ($domainDNSNamespace.split('.') | % { "dc=$_" }) -join ","
 $domainCred = Get-Credential -UserName "Administrator@$domaindnsnamespace" -Message "Please enter a new password for Domain Administrator."
@@ -77,12 +69,13 @@ configuration BuildDomainController
 
             LogPath = $node.DCLogPath
             SysvolPath = $node.SysvolPath 
-            DependsOn = @('[WindowsFeature]ADDSInstall','[WindowsFeature]ADDSInstall')
+            DependsOn = @('[WindowsFeature]ADDSInstall','[WindowsFeature]ADDSToolsInstall')
         }
     }
 }
 
 BuildDomainController -ConfigurationData $ConfigData
 
-Set-DSCLocalConfigurationManager -Path .\BuildDomainController
-Start-DscConfiguration -Wait -Force -Path .\BuildDomainController -Verbose
+Set-DSCLocalConfigurationManager -Path .\BuildDomainController -Confirm
+Start-DscConfiguration -Wait -Force -Path .\BuildDomainController -Verbose -Confirm
+Pop-Location
