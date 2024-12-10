@@ -1,5 +1,5 @@
 ﻿Push-Location -Path $PSScriptRoot
-$domainDNSNamespace = 'firefly.local'
+$domainDNSNamespace = Read-Host -Prompt "Please enter the domain DNS namespace (e.g. generic.local)"
 $DomainDN = ($domainDNSNamespace.split('.') | % { "dc=$_" }) -join ","
 $domainCred = Get-Credential -UserName "Administrator@$domaindnsnamespace" -Message "Please enter a new password for Domain Administrator."
 
